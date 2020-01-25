@@ -4,11 +4,11 @@
 
 
 
-$deal_id = $_REQUEST['FIELDS']['ID'];
+$deal_id = $ID_IN['FIELDS']['ID'];
 
 
 
-$deal_data = executeREST('crm.deal.get', array('ID' => intval($_REQUEST['data']['FIELDS'][$ID_IN])));
+$deal_data = executeREST('crm.deal.get', array('ID' => intval($ID_IN['data']['FIELDS']['ID'])));
 
 
 
@@ -16,7 +16,7 @@ $main_kp = $deal_data['result']['QUOTE_ID'];
 
 $main_lead = $deal_data['result']['LEAD_ID'];
 
-$kp_id = $_REQUEST2['FIELDS']['ID'];
+$kp_id = $ID_IN['FIELDS']['ID'];
 
 $kp_data = executeREST('BX24.callMethod(	"crm.quote.list", 	{ 		order: { "STATUS_ID": "ASC" },		
 filter: { "=LEAD_ID": $main_lead },		select: [ "ID",  "STATUS_ID" ]	}, 	function(result){})', 
