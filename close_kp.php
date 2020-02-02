@@ -1,41 +1,30 @@
-﻿<?php
+<?php
 
-// 
+$id = $_GET['id'];
 
+$deal_data = executeREST('crm.deal.get', array ( "ID" => $id));
+$main_quote_id = $deal_data['result']['QUOTE_ID'];
+$main_lead_id = $deal_data['result']['LEAD_ID'];
+$DEAL_OPPORTUNITY = $deal_data['result']['OPPORTUNITY'];
 
+$DEAL_UPDATE = executeREST ('crm.deal.userfield.update', array('ID' => $id, 
+                                                               'FIELDS' => array ( "UF_CRM_5DF76EFB9E9CA" =>  $DEAL_OPPORTUNITY)));
 
-$deal_id = $ID_IN['FIELDS']['ID'];
+$quote_data = executeREST('crm.quote.list', array ( 'order'  => array ( "STATUS_ID"  => "ASC"  ),
+                                                    'filter' => array ( "LEAD_ID" =>  $main_lead_id ),
+                                                    'select' => array ( "ID", "TITLE", "STATUS_ID", "OPPORTUNITY", "CURRENCY_ID" )));
 
-
-
-$deal_data = executeREST('crm.deal.get', array('ID' => intval($ID_IN['data']['FIELDS']['ID'])));
-
-
-
-$main_kp = $deal_data['result']['QUOTE_ID'];
-
-$main_lead = $deal_data['result']['LEAD_ID'];
-
-$kp_id = $ID_IN['FIELDS']['ID'];
-
-$kp_data = executeREST('BX24.callMethod(	"crm.quote.list", 	{ 		order: { "STATUS_ID": "ASC" },		
-filter: { "=LEAD_ID": $main_lead },		select: [ "ID",  "STATUS_ID" ]	}, 	function(result){})', 
-array('ID' => intval($_REQUEST2['data']['FIELDS']['ID'])));
-
-
-
-foreach ($kp_data as $kp_id)
+foreach ($quote_data['result'] as $q_id)
 {
-if ($kp_data['result']['ID'] == $main_kp) 
-executeREST ('crm.quote.update', 
-array($crm[result],
-array('ID' => $kp_data['result']['ID'], 
-      'FIELDS' => '{ "STATUS_ID": "APPROVED" }')));
-if ($kp_data['result']['ID'] == $main_kp) 
-executeREST ('crm.quote.update', 
-array($crm[result],
-array('ID' => $kp_data['result']['ID'], 
-      'FIELDS' => '{ "STATUS_ID": "DECLAINED"  }')));
+if ($q_id['ID'] == $main_quote_id) 
+executeREST ('crm.quote.update', array('ID' => $q_id['ID'], 
+                                       'FIELDS' => array ( "STATUS_ID" =>  "APPROVED",
+                                                           "DEAL_ID"   => $id)));
+   
+    
+if ($q_id['ID'] <> $main_quote_id) 
+executeREST ('crm.quote.update', array('ID' => $q_id['ID'], 
+                                       'FIELDS' => array ( "STATUS_ID" =>  "DECLAINED" )));
 }
 
 function executeREST($method, $params) {
@@ -50,20 +39,13 @@ function executeREST($method, $params) {
    
  curl_setopt_array($curl, array(
         CURLOPT_SSL_VERIFYPEER => 0,
-       
- CURLOPT_POST => 1,
+        CURLOPT_POST => 1,
         CURLOPT_HEADER => 0,
         CURLOPT_RETURNTRANSFER => 1,
-       
- CURLOPT_URL => $queryUrl,
-        CURLOPT_POSTFIELDS => $queryData,
-    ));
+        CURLOPT_URL => $queryUrl,
+        CURLOPT_POSTFIELDS => $queryData));
+ $result = curl_exec($curl);
+ return json_decode($result, true);
+ curl_close($curl);
 
-  
-
-  $result = curl_exec($curl);
-    curl_close($curl);
-
-    return json_decode($result, true);
-
-}
+} ?>
