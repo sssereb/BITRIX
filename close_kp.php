@@ -30,7 +30,7 @@ executeREST ('crm.quote.update', array('ID' => $q_id['ID'],
 function executeREST($method, $params) {
 
  
-   $queryUrl = 'https://comcompany.bitrix24.ua/rest/1/jf43c29vkjox8tqm/'.$method.'.json';
+   $queryUrl = 'https://comcompany.bitrix24.ua/rest/1/3o4j52s55xp1psrj/'.$method.'.json';
  
    $queryData = http_build_query($params);
 
